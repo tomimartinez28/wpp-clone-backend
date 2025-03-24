@@ -27,15 +27,15 @@ class UserRepository {
 
     async verifyUserByEmail(email) {
         const foundUser = await this.findUserByEmail(email)
-        if(!foundUser) throw new ServerError('User not found', 404)
-        if(foundUser.verified) throw new ServerError('User has already been verified', 400)
+        if (!foundUser) throw new ServerError('User not found', 404)
+        if (foundUser.verified) throw new ServerError('User has already been verified', 400)
         foundUser.verified = true
         await foundUser.save()
     }
 
     async changeUserPassword(id, newPassword) {
         const foundUser = await this.findUserById(id)
-        if(!foundUser) throw new ServerError('User not found', 404)
+        if (!foundUser) throw new ServerError('User not found', 404)
         foundUser.password = newPassword
         await foundUser.save()
     }
@@ -45,7 +45,15 @@ class UserRepository {
     }
 
     async findUserById(id) {
-        return await User.findOne({ [USER_PROPS.ID]: id })
+        return await User.findOne({ [USER_PROPS.ID]: id }).select('_id username email avatar')
+    }
+
+    async getAllUsers(loggedInUserId) {
+        
+        return await User.find({ 
+            _id: { $ne: loggedInUserId },
+            verified: true,
+        }).select('_id username email avatar')
     }
 
 }

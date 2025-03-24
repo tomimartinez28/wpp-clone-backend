@@ -6,6 +6,8 @@ import ENVIRONMENT from "../config/env.config.js"
 import { ServerError } from "../utils/errors.utils.js"
 import { handleControllerError } from "../utils/errors.utils.js"
 
+
+
 export const registerController = async (req, res) => {
     try {
         const { username, password, email } = req.body
@@ -60,7 +62,7 @@ export const verifyEmailController = async (req, res) => {
         const { email } = payload
         await userRepository.verifyUserByEmail(email)
 
-        return res.redirect(ENVIRONMENT.FRONTEND_URL + '/login')
+        return res.redirect(ENVIRONMENT.FRONTEND_URL + '/')
 
     } catch (err) {
         return handleControllerError(res, err, 'An error ocurred when validating the user email')
@@ -79,7 +81,7 @@ export const loginController = async (req, res) => {
 
         const authorization_token = jwt.sign(
             {
-                id: found_user._id,
+                _id: found_user._id,
                 email: found_user.email,
                 username: found_user.username
             },
@@ -95,6 +97,7 @@ export const loginController = async (req, res) => {
             message: 'Logged successfully',
             payload: {
                 user: {
+                    _id: found_user._id,
                     email: found_user.email,
                     username: found_user.username,
                     authorization_token,
@@ -118,12 +121,12 @@ export const resetPasswordController = async (req, res) => {
         const { email } = req.body
         const found_user = await userRepository.findUserByEmail(email)
         if (!found_user) throw new ServerError('Email not found', 404)
-        if (!found_user.verified) throw new ServerError('Email not verified', 404)
+        if (!found_user.verified) throw new ServerError('User email is not verified', 404)
 
         const reset_token = jwt.sign(
             {
                 email,
-                id: found_user._id,
+                _id: found_user._id,
 
             },
             ENVIRONMENT.SECRET_KEY_JWT,
@@ -157,13 +160,13 @@ export const resetPasswordController = async (req, res) => {
 export const rewritePasswordController = async (req, res) => {
     try {
         const { password, reset_token } = req.body
-        const { id } = jwt.verify(reset_token, ENVIRONMENT.SECRET_KEY_JWT)
-        
+        const { _id } = jwt.verify(reset_token, ENVIRONMENT.SECRET_KEY_JWT)
+
         // hasheo la nueva contraseña
-        
+
         const hashed_password = await bcrypt.hash(password, 10)
 
-        await userRepository.changeUserPassword(id, hashed_password)
+        await userRepository.changeUserPassword(_id, hashed_password)
 
         return res.status(200).send({
             ok: true,
@@ -177,3 +180,75 @@ export const rewritePasswordController = async (req, res) => {
         handleControllerError(res, err, "Error when rewriting the new password.")
     }
 }
+
+
+export const verifyJwtController = async (req, res) => {
+    try {
+        const user = req.user
+        res.status(200).send({
+            ok: true,
+            message: 'JWT is correct',
+            status: 200,
+            payload: {
+                user
+            }
+        })
+    } catch (err) {
+        handleControllerError(res, err, "error while checking de jwt")
+    }
+}
+export const getAllUsersController = async (req, res) => {
+    try {
+        const user_id = req.user._id
+
+        const usersList = await userRepository.getAllUsers(user_id)
+        return res.status(200).send({
+            ok: true,
+            message: 'User list got successfully',
+            status: 200,
+            payload: {
+                usersList
+            }
+        })
+
+    } catch (err) {
+        handleControllerError(res, err, "Error while getting de users list")
+    }
+}
+
+
+export const getUserById = async (req, res) => {
+    try {
+        const { user_id } = req.params
+        const foundUser = await userRepository.findUserById(user_id)
+        return res.status(200).send({
+            ok: true,
+            message: 'User found successfully',
+            status: 200,
+            payload: {
+                foundUser
+            }
+        })
+    } catch (err) {
+        handleControllerError(res, err, "Error while getting the user")
+    }
+}
+
+/* export const getUsersController = async (req, res) => {
+    try {
+        const user = req.user
+        res.status(201).send({
+            ok: true,
+            message: 'User got successfully',
+            status: 200,
+            payload: {
+                user
+            }
+        })
+    } catch (err) {
+        handleControllerError(res, err, 'Error while getting the user')
+    }
+} */
+
+
+
