@@ -13,6 +13,15 @@ export const registerController = async (req, res) => {
         const { username, password, email } = req.body
         if (!username || !email || !password) throw new ServerError('All fields are required', 400)
 
+        // Validar email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) throw new ServerError('Invalid email format', 400);
+
+        // Validar contraseña segura
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
+        if (!passwordRegex.test(password))
+            throw new ServerError('Password must be at least 6 characters long, include a number and an uppercase letter', 400);
+
         // Hashear la pwd
         const hashed_password = await bcrypt.hash(password, 10)
 
@@ -97,7 +106,7 @@ export const loginController = async (req, res) => {
             message: 'Logged successfully',
             payload: {
                 user: {
-                    _id: found_user._id,
+                    _id: found_user.id,
                     email: found_user.email,
                     username: found_user.username,
                     authorization_token,
@@ -161,6 +170,12 @@ export const rewritePasswordController = async (req, res) => {
     try {
         const { password, reset_token } = req.body
         const { _id } = jwt.verify(reset_token, ENVIRONMENT.SECRET_KEY_JWT)
+        
+
+        // Validar contraseña segura
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
+        if (!passwordRegex.test(password))
+            throw new ServerError('Password must be at least 6 characters long, include a number and an uppercase letter', 400);
 
         // hasheo la nueva contraseña
 
