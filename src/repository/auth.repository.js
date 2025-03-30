@@ -1,6 +1,8 @@
 import User from "../models/User.model.js"
 import { ServerError } from "../utils/errors.utils.js"
 import { USER_PROPS } from "../models/User.model.js"
+import path from 'path'
+import fs from 'fs'
 
 class UserRepository {
     async create({ username, email, password, verification_token }) {
@@ -49,11 +51,28 @@ class UserRepository {
     }
 
     async getAllUsers(loggedInUserId) {
-        
-        return await User.find({ 
+
+        return await User.find({
             _id: { $ne: loggedInUserId },
             verified: true,
         }).select('_id username email avatar')
+    }
+
+    async updateUserAvatar(user_id, avatar) {
+        const foundUser = await this.findUserById(user_id)
+        if (!foundUser) throw new ServerError('User not found', 404)
+
+        // Eliminar imagen anterior si no es la default
+        if (foundUser.avatar && foundUser.avatar !== '/avatars/defaultAvatar.jpg') {
+            const previousPath = path.join(process.cwd(), 'src/public', foundUser.avatar)
+            console.log('previousPath, ', previousPath);
+            if (fs.existsSync(previousPath)) {
+                fs.unlinkSync(previousPath)
+            }
+        }
+
+        foundUser.avatar = avatar
+        await foundUser.save()
     }
 
 }

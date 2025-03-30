@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
     },
     [USER_PROPS.AVATAR]: {
         type: String,
-        default: 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'
+        default: '/avatars/defaultAvatar.jpg'
     },
     [USER_PROPS.INFO]: {
         type: String,

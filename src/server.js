@@ -8,7 +8,9 @@ import auth_router from './routes/auth.router.js';
 import chat_router from './routes/chat.router.js';
 import message_router from './routes/message.router.js';
 import messageRepository from './repository/message.repository.js'
-import chatRepository from './repository/chat.repository.js'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
 
 const app = express()
 const server = http.createServer(app) // Creo un servidor http con express
@@ -21,6 +23,11 @@ app.use(cors({
     origin: ENVIRONMENT.FRONTEND_URL
 }))
 app.use(express.json())
+
+// Acá está la magia: le decís a Express que sirva los archivos estáticos de la carpeta public
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+app.use('/avatars', express.static(path.join(__dirname, 'public/avatars')))
 
 
 // Rutas

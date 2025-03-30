@@ -5,6 +5,8 @@ import userRepository from "../repository/auth.repository.js"
 import ENVIRONMENT from "../config/env.config.js"
 import { ServerError } from "../utils/errors.utils.js"
 import { handleControllerError } from "../utils/errors.utils.js"
+import { Server } from "socket.io"
+
 
 
 
@@ -170,7 +172,7 @@ export const rewritePasswordController = async (req, res) => {
     try {
         const { password, reset_token } = req.body
         const { _id } = jwt.verify(reset_token, ENVIRONMENT.SECRET_KEY_JWT)
-        
+
 
         // Validar contraseña segura
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
@@ -246,6 +248,25 @@ export const getUserById = async (req, res) => {
         })
     } catch (err) {
         handleControllerError(res, err, "Error while getting the user")
+    }
+}
+
+export const updateUserAvatarController = async (req, res) => {
+    try {
+
+        if(!req.file) throw new ServerError('No file uploaded', 400)
+        const user_id = req.user._id
+        const avatarPath = `/avatars/${req.file.filename}`
+
+        await userRepository.updateUserAvatar(user_id, avatarPath)
+        return res.status(200).send({
+            ok: true,
+            status: 200,
+            message: "Avatar successfully updated"
+        })
+
+    } catch (err) {
+        handleControllerError(res, err, "Error while updating the user")
     }
 }
 
