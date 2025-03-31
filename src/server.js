@@ -5,9 +5,8 @@ import mongoose from "./config/mongodb.config.js";
 import auth_router from './routes/auth.router.js';
 import chat_router from './routes/chat.router.js';
 import message_router from './routes/message.router.js';
-import messageRepository from './repository/message.repository.js'
-import path from 'path'
-import { fileURLToPath } from 'url'
+
+
 
 
 const app = express()
@@ -17,12 +16,13 @@ const app = express()
 app.use(cors({
     origin: ENVIRONMENT.FRONTEND_URL
 }))
-app.use(express.json())
-
-
 app.use(express.json({
     limit: '10mb'
 }))
+
+
+
+
 
 /* // Acá está la magia: le decís a Express que sirva los archivos estáticos de la carpeta public
 const __filename = fileURLToPath(import.meta.url)
