@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
     },
     [USER_PROPS.AVATAR]: {
         type: String,
-        default: '/avatars/defaultAvatar.jpg'
+        default: ''
     },
     [USER_PROPS.INFO]: {
         type: String,

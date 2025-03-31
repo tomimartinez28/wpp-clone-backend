@@ -19,10 +19,15 @@ app.use(cors({
 }))
 app.use(express.json())
 
-// Acá está la magia: le decís a Express que sirva los archivos estáticos de la carpeta public
+
+app.use(express.json({
+    limit: '10mb'
+}))
+
+/* // Acá está la magia: le decís a Express que sirva los archivos estáticos de la carpeta public
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-app.use('/avatars', express.static(path.join(__dirname, 'public/avatars')))
+app.use('/avatars', express.static(path.join(__dirname, 'public/avatars'))) */
 
 
 // Rutas

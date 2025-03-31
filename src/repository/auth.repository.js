@@ -62,14 +62,6 @@ class UserRepository {
         const foundUser = await this.findUserById(user_id)
         if (!foundUser) throw new ServerError('User not found', 404)
 
-        // Eliminar imagen anterior si no es la default
-        if (foundUser.avatar && foundUser.avatar !== '/avatars/defaultAvatar.jpg') {
-            const previousPath = path.join(process.cwd(), 'src/public', foundUser.avatar)
-            console.log('previousPath, ', previousPath);
-            if (fs.existsSync(previousPath)) {
-                fs.unlinkSync(previousPath)
-            }
-        }
 
         foundUser.avatar = avatar
         await foundUser.save()

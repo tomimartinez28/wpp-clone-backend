@@ -254,16 +254,18 @@ export const getUserById = async (req, res) => {
 export const updateUserAvatarController = async (req, res) => {
     try {
 
-        if(!req.file) throw new ServerError('No file uploaded', 400)
+        const { avatar } = req.body
+        if (!avatar) throw new ServerError('No file uploaded', 400) 
         const user_id = req.user._id
-        const avatarPath = `/avatars/${req.file.filename}`
+        
 
-        await userRepository.updateUserAvatar(user_id, avatarPath)
+
+       await userRepository.updateUserAvatar(user_id, avatar)
         return res.status(200).send({
             ok: true,
             status: 200,
             message: "Avatar successfully updated"
-        })
+        }) 
 
     } catch (err) {
         handleControllerError(res, err, "Error while updating the user")
